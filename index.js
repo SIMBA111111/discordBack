@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import cors from 'cors'
+import {router as AuthRouter} from './routes/routes-auth.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,6 +23,8 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
+
+app.use('/api/auth', AuthRouter)
 
 // Health check endpoint
 // app.get('/health', (req, res) => {
@@ -178,8 +181,11 @@ const handleJoin = (ws, room, userId, payload) => {
     // Остальные - невежливые (polite=false)
     otherUsers = Array.from(room.users.values())
       .filter(u => u.userId !== userId && u.username);
-    
-    user.polite = otherUsers.length === 0 ? true : false;
+
+    // ОЧЕНЬ ВАЖНО: ЕСЛИ ВЕЖЛИВЫХ В КОМНАТЕ НЕТ, ТО ТЫ СТАНОВИШЬСЯ ВЕЖЛИВЫМ. ВРОДЕ БЫ ЭТО РАБОТАЕТ, НО ЕСЛИ ЧТО ПОДУМАТЬ КАК ПРАВИЛЬНО РЕАЛИЗОВАТЬ 
+    const politeExist = otherUsers.find((user) => user.polite)
+
+    user.polite = politeExist ? false : true;
   }
 
   console.log(`👤 User ${username} (${userId}) joined room ${room.id}. Polite: ${user.polite}`);
@@ -207,26 +213,31 @@ const handleJoin = (ws, room, userId, payload) => {
   });
 
   // Отправляем новому пользователю список уже подключенных пользователей
-  const existingUsers = Array.from(room.users.values())
-    .filter(u => u.userId !== userId && u.username)
-    .map(u => ({
-      userId: u.userId,
-      username: u.username,
-      polite: u.polite
-    }));
+//   const existingUsers = Array.from(room.users.values())
+//     .filter(u => u.userId !== userId && u.username)
+//     .map(u => ({
+//       userId: u.userId,
+//       username: u.username,
+//       polite: u.polite
+//     }));
 
-  if (existingUsers.length > 0) {
-    ws.send(JSON.stringify({
-      type: 'existing-users',
-      payload: existingUsers
-    }));
-  }
+//   if (existingUsers.length > 0) {
+//     ws.send(JSON.stringify({
+//       type: 'existing-users',
+//       payload: existingUsers
+//     }));
+//   }
 };
 
 // Обработка сигнальных сообщений (offer, answer, ice-candidate)
 const handleSignalingMessage = (room, senderId, data) => {
   const { type, payload } = data;
   
+    // console.log('room -= ', room );
+    // console.log('sender id -= ', senderId );
+    // console.log('data -= ', data );
+    
+
   broadcastToRoom(room, senderId, {
     type,
     payload: {
