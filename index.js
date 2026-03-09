@@ -7,6 +7,9 @@ import { dirname, join } from 'path';
 import cors from 'cors'
 import {router as AuthRouter} from './routes/routes-auth.js'
 
+console.log('Ghbdtn');
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
