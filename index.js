@@ -20,6 +20,9 @@ const wss = new WebSocketServer({ server });
 // Хранилище комнат и пользователей
 const rooms = new Map();
 
+console.log('807989679869786789');
+
+
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:3001'], // URL фронтенда
   credentials: true // Важно! Разрешает передачу cookie
