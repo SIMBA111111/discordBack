@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import cors from 'cors'
 import {router as AuthRouter} from './routes/routes-auth.js'
-import { log } from 'console';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -75,9 +74,6 @@ app.post('/api/room/create', (req, res) => {
     message: 'Room created successfully' 
   });
 });
-
-console.log("asdp[aksd");
-
 
 // WebSocket обработчик
 wss.on('connection', (ws, req) => {
